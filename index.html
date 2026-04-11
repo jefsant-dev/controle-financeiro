@@ -88,6 +88,40 @@
             </div>
         </div>
 
+        <!-- Filtros e Exportação -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label for="search-filter" class="form-label">Buscar</label>
+                                <input type="text" id="search-filter" class="form-control" placeholder="Descrição ou categoria" oninput="applyFilters()">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="category-filter" class="form-label">Categoria</label>
+                                <select id="category-filter" class="form-select" onchange="applyFilters()">
+                                    <option value="">Todas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="date-from" class="form-label">Data de</label>
+                                <input type="date" id="date-from" class="form-control" onchange="applyFilters()">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="date-to" class="form-label">Data até</label>
+                                <input type="date" id="date-to" class="form-control" onchange="applyFilters()">
+                            </div>
+                            <div class="col-md-3 d-flex gap-2">
+                                <button class="btn btn-outline-primary w-100" onclick="clearFilters()">Limpar filtros</button>
+                                <button class="btn btn-outline-secondary w-100" onclick="exportCsv()">Exportar CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabelas -->
         <div class="row">
             <div class="col-md-6">

@@ -1,4 +1,5 @@
 let transactions = [];
+let filteredTransactions = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     loadTransactions();
@@ -103,6 +104,8 @@ async function loadTransactions() {
     try {
         const response = await fetch('backend/api/get_transactions.php');
         transactions = await response.json();
+        filteredTransactions = [...transactions];
+        renderCategoryOptions();
         renderTables();
         updateCards();
     } catch (error) {
@@ -117,7 +120,7 @@ function renderTables() {
     receitasTable.innerHTML = '';
     despesasTable.innerHTML = '';
 
-    transactions.forEach(transaction => {
+    filteredTransactions.forEach(transaction => {
         const row = createTableRow(transaction);
         if (transaction.type === 'receita') {
             receitasTable.appendChild(row);
@@ -161,6 +164,69 @@ function updateCards() {
     document.getElementById('total-despesas').textContent = `R$ ${despesas.toFixed(2)}`;
     document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
     document.getElementById('mes-atual').textContent = `R$ ${mesAtual.toFixed(2)}`;
+}
+
+function renderCategoryOptions() {
+    const categorySelect = document.getElementById('category-filter');
+    const categories = [...new Set(transactions.map(t => t.category).filter(Boolean))].sort();
+    categorySelect.innerHTML = '<option value="">Todas</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function applyFilters() {
+    const query = document.getElementById('search-filter').value.trim().toLowerCase();
+    const category = document.getElementById('category-filter').value;
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+
+    filteredTransactions = transactions.filter(transaction => {
+        const matchesQuery = query === '' || transaction.description.toLowerCase().includes(query) || transaction.category.toLowerCase().includes(query);
+        const matchesCategory = !category || transaction.category === category;
+
+        const transactionDate = transaction.created_at.split(' ')[0];
+        const matchesDateFrom = !dateFrom || transactionDate >= dateFrom;
+        const matchesDateTo = !dateTo || transactionDate <= dateTo;
+
+        return matchesQuery && matchesCategory && matchesDateFrom && matchesDateTo;
+    });
+
+    renderTables();
+}
+
+function clearFilters() {
+    document.getElementById('search-filter').value = '';
+    document.getElementById('category-filter').value = '';
+    document.getElementById('date-from').value = '';
+    document.getElementById('date-to').value = '';
+    filteredTransactions = [...transactions];
+    renderTables();
+}
+
+function exportCsv() {
+    const rows = [
+        ['Tipo', 'Data', 'Descrição', 'Categoria', 'Valor']
+    ];
+
+    filteredTransactions.forEach(transaction => {
+        const date = transaction.created_at.split(' ')[0];
+        rows.push([
+            transaction.type,
+            date,
+            transaction.description,
+            transaction.category,
+            parseFloat(transaction.amount).toFixed(2)
+        ]);
+    });
+
+    const csvContent = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'controle_financeiro.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 // Funções do menu (placeholders)
