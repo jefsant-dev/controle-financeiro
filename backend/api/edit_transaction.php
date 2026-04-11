@@ -1,20 +1,20 @@
 <?php
 require_once '../config.php';
 
-parse_str(file_get_contents("php://input"), $putData);
+$data = json_decode(file_get_contents('php://input'), true);
 $id = $_GET['id'] ?? null;
 
-if (!$id || !$putData) {
+if (!$id || !$data) {
     http_response_code(400);
     echo json_encode(['error' => 'Dados inválidos']);
     exit;
 }
 
-$type = $putData['type'];
-$description = $putData['description'];
-$amount = $putData['amount'];
-$category_id = $putData['category_id'];
-$date = $putData['date'] ?? date('Y-m-d');
+$type = $data['type'];
+$description = $data['description'];
+$amount = $data['amount'];
+$category_id = $data['category_id'];
+$date = $data['date'] ?? date('Y-m-d');
 
 if (!in_array($type, ['receita', 'despesa']) || empty($description) || !is_numeric($amount) || empty($category_id)) {
     http_response_code(400);
