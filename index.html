@@ -8,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="frontend/css/styles.css">
 </head>
 <body>
@@ -40,53 +38,37 @@
     </nav>
 
     <div class="container-fluid mt-4">
-        <!-- Cards e Gráfico lado a lado -->
-        <div class="row mb-4 align-items-stretch">
-            <div class="col-md-6">
-                <!-- Cards em 2x2 -->
-                <div class="row h-100">
-                    <div class="col-6 mb-3">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
-                                <h5 class="card-title"><i class="fas fa-arrow-up"></i> Receitas</h5>
-                                <h3 id="total-receitas">R$ 0,00</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="card text-white bg-danger">
-                            <div class="card-body">
-                                <h5 class="card-title"><i class="fas fa-arrow-down"></i> Despesas</h5>
-                                <h3 id="total-despesas">R$ 0,00</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="card text-white bg-info">
-                            <div class="card-body">
-                                <h5 class="card-title"><i class="fas fa-balance-scale"></i> Saldo</h5>
-                                <h3 id="saldo">R$ 0,00</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-3">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body">
-                                <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Este Mês</h5>
-                                <h3 id="mes-atual">R$ 0,00</h3>
-                            </div>
-                        </div>
+        <!-- Cards de Resumo -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-arrow-up"></i> Receitas</h5>
+                        <h3 id="total-receitas">R$ 0,00</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <!-- Gráfico -->
-                <div class="card chart-card h-100">
-                    <div class="card-header">
-                        <h5><i class="fas fa-chart-line"></i> Evolução Financeira</h5>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-arrow-down"></i> Despesas</h5>
+                        <h3 id="total-despesas">R$ 0,00</h3>
                     </div>
-                    <div class="card-body chart-card-body">
-                        <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-balance-scale"></i> Saldo</h5>
+                        <h3 id="saldo">R$ 0,00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-alt"></i> Este Mês</h5>
+                        <h3 id="mes-atual">R$ 0,00</h3>
                     </div>
                 </div>
             </div>

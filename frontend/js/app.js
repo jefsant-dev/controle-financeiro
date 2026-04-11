@@ -1,9 +1,7 @@
 let transactions = [];
-let chart = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadTransactions();
-    initializeChart();
     setDefaultDate();
 });
 
@@ -107,7 +105,6 @@ async function loadTransactions() {
         transactions = await response.json();
         renderTables();
         updateCards();
-        updateChart();
     } catch (error) {
         console.error('Erro ao carregar transações:', error);
     }
@@ -164,52 +161,6 @@ function updateCards() {
     document.getElementById('total-despesas').textContent = `R$ ${despesas.toFixed(2)}`;
     document.getElementById('saldo').textContent = `R$ ${saldo.toFixed(2)}`;
     document.getElementById('mes-atual').textContent = `R$ ${mesAtual.toFixed(2)}`;
-}
-
-function initializeChart() {
-    const ctx = document.getElementById('financeChart').getContext('2d');
-    chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Saldo',
-                data: [],
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Evolução do Saldo'
-                }
-            }
-        }
-    });
-}
-
-function updateChart() {
-    // Agrupar por data e calcular saldo acumulado
-    const grouped = {};
-    transactions.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-    let runningBalance = 0;
-    transactions.forEach(t => {
-        const date = new Date(t.created_at).toLocaleDateString('pt-BR');
-        const amount = parseFloat(t.amount);
-        runningBalance += t.type === 'receita' ? amount : -amount;
-        grouped[date] = runningBalance;
-    });
-
-    const labels = Object.keys(grouped);
-    const data = Object.values(grouped);
-
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = data;
-    chart.update();
 }
 
 // Funções do menu (placeholders)
