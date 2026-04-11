@@ -12,7 +12,7 @@ async function addTransaction(event) {
     const amount = parseFloat(document.getElementById('amount').value);
     const category = document.getElementById('category').value;
 
-    const response = await fetch('../backend/api/add_transaction.php', {
+    const response = await fetch('backend/api/add_transaction.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -29,7 +29,7 @@ async function addTransaction(event) {
 }
 
 async function loadTransactions() {
-    const response = await fetch('../backend/api/get_transactions.php');
+    const response = await fetch('backend/api/get_transactions.php');
     const transactions = await response.json();
     const list = document.getElementById('transactions-list');
     list.innerHTML = '';
