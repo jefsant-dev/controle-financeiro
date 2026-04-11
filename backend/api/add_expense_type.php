@@ -10,16 +10,15 @@ if (!$data) {
 }
 
 $name = trim($data['name'] ?? '');
-$type = $data['type'] ?? '';
 
-if (empty($name) || !in_array($type, ['receita', 'despesa'])) {
+if (empty($name)) {
     http_response_code(400);
     echo json_encode(['error' => 'Dados inválidos']);
     exit;
 }
 
-$stmt = $pdo->prepare("INSERT INTO categories (name, type) VALUES (?, ?)");
-$stmt->execute([$name, $type]);
+$stmt = $pdo->prepare("INSERT INTO expense_types (name) VALUES (?)");
+$stmt->execute([$name]);
 
-echo json_encode(['success' => true, 'category_id' => $pdo->lastInsertId()]);
+echo json_encode(['success' => true, 'expense_type_id' => $pdo->lastInsertId()]);
 ?>
