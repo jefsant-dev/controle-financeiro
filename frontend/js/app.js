@@ -1,10 +1,16 @@
 let transactions = [];
 let filteredTransactions = [];
+let categories = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadTransactions();
-    setDefaultDate();
+    initApp();
 });
+
+async function initApp() {
+    await loadCategories();
+    await loadTransactions();
+    setDefaultDate();
+}
 
 function setDefaultDate() {
     const today = new Date().toISOString().split('T')[0];
@@ -16,9 +22,9 @@ function openAddModal(type) {
     document.getElementById('type').value = type;
     document.getElementById('description').value = '';
     document.getElementById('amount').value = '';
-    document.getElementById('category').value = '';
     setDefaultDate();
     document.getElementById('modal-title').textContent = `Adicionar ${type === 'receita' ? 'Receita' : 'Despesa'}`;
+    populateCategorySelect(type);
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
 }
 
@@ -29,7 +35,7 @@ function editTransaction(id) {
         document.getElementById('type').value = transaction.type;
         document.getElementById('description').value = transaction.description;
         document.getElementById('amount').value = transaction.amount;
-        document.getElementById('category').value = transaction.category;
+        populateCategorySelect(transaction.type, transaction.category_id);
         document.getElementById('date').value = transaction.created_at.split(' ')[0];
         document.getElementById('modal-title').textContent = 'Editar Transação';
         new bootstrap.Modal(document.getElementById('transactionModal')).show();
@@ -41,15 +47,15 @@ async function saveTransaction() {
     const type = document.getElementById('type').value;
     const description = document.getElementById('description').value;
     const amount = parseFloat(document.getElementById('amount').value);
-    const category = document.getElementById('category').value;
+    const category_id = document.getElementById('category').value;
     const date = document.getElementById('date').value;
 
-    if (!description || !amount || !category || !date) {
+    if (!description || !amount || !category_id || !date) {
         alert('Preencha todos os campos!');
         return;
     }
 
-    const data = { type, description, amount, category, date };
+    const data = { type, description, amount, category_id, date };
 
     try {
         let response;
@@ -105,11 +111,58 @@ async function loadTransactions() {
         const response = await fetch('backend/api/get_transactions.php');
         transactions = await response.json();
         filteredTransactions = [...transactions];
-        renderCategoryOptions();
+        renderCategoryFilterOptions();
         renderTables();
         updateCards();
     } catch (error) {
         console.error('Erro ao carregar transações:', error);
+    }
+}
+
+async function loadCategories() {
+    try {
+        const response = await fetch('backend/api/get_categories.php');
+        categories = await response.json();
+        renderCategoryFilterOptions();
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+    }
+}
+
+function openCategoryModal() {
+    document.getElementById('category-name').value = '';
+    document.getElementById('category-type').value = 'despesa';
+    new bootstrap.Modal(document.getElementById('categoryModal')).show();
+}
+
+async function saveCategory() {
+    const name = document.getElementById('category-name').value.trim();
+    const type = document.getElementById('category-type').value;
+
+    if (!name) {
+        alert('Digite o nome da categoria');
+        return;
+    }
+
+    try {
+        const response = await fetch('backend/api/add_category.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, type })
+        });
+
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+            await loadCategories();
+            if (document.getElementById('transactionModal').classList.contains('show')) {
+                populateCategorySelect(document.getElementById('type').value);
+            }
+        } else {
+            alert('Erro ao salvar categoria');
+        }
+    } catch (error) {
+        console.error('Erro ao salvar categoria:', error);
+        alert('Erro ao salvar categoria');
     }
 }
 
@@ -166,10 +219,18 @@ function updateCards() {
     document.getElementById('mes-atual').textContent = `R$ ${mesAtual.toFixed(2)}`;
 }
 
-function renderCategoryOptions() {
+function renderCategoryFilterOptions() {
     const categorySelect = document.getElementById('category-filter');
-    const categories = [...new Set(transactions.map(t => t.category).filter(Boolean))].sort();
-    categorySelect.innerHTML = '<option value="">Todas</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    categorySelect.innerHTML = '<option value="">Todas</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function populateCategorySelect(type, selectedCategoryId = '') {
+    const categorySelect = document.getElementById('category');
+    const relevantCategories = categories.filter(c => c.type === type);
+    categorySelect.innerHTML = relevantCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    if (selectedCategoryId) {
+        categorySelect.value = selectedCategoryId;
+    }
 }
 
 function applyFilters() {
@@ -180,7 +241,7 @@ function applyFilters() {
 
     filteredTransactions = transactions.filter(transaction => {
         const matchesQuery = query === '' || transaction.description.toLowerCase().includes(query) || transaction.category.toLowerCase().includes(query);
-        const matchesCategory = !category || transaction.category === category;
+        const matchesCategory = !category || String(transaction.category_id) === category;
 
         const transactionDate = transaction.created_at.split(' ')[0];
         const matchesDateFrom = !dateFrom || transactionDate >= dateFrom;

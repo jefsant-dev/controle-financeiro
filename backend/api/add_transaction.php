@@ -12,17 +12,17 @@ if (!$data) {
 $type = $data['type'];
 $description = $data['description'];
 $amount = $data['amount'];
-$category = $data['category'];
+$category_id = $data['category_id'];
 $date = $data['date'] ?? date('Y-m-d');
 
-if (!in_array($type, ['receita', 'despesa']) || empty($description) || !is_numeric($amount) || empty($category)) {
+if (!in_array($type, ['receita', 'despesa']) || empty($description) || !is_numeric($amount) || empty($category_id)) {
     http_response_code(400);
     echo json_encode(['error' => 'Dados inválidos']);
     exit;
 }
 
-$stmt = $pdo->prepare("INSERT INTO transactions (type, description, amount, category, created_at) VALUES (?, ?, ?, ?, ?)");
-$stmt->execute([$type, $description, $amount, $category, $date . ' 00:00:00']);
+$stmt = $pdo->prepare("INSERT INTO transactions (type, description, amount, category_id, created_at) VALUES (?, ?, ?, ?, ?)");
+$stmt->execute([$type, $description, $amount, $category_id, $date . ' 00:00:00']);
 
 echo json_encode(['success' => true]);
 ?>
