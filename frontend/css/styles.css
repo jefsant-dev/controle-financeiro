@@ -33,6 +33,11 @@ body {
     border-radius: 10px;
 }
 
+/* Ajuste para o gráfico ocupar altura adequada */
+#financeChart {
+    max-height: 300px;
+}
+
 @media (max-width: 768px) {
     .container-fluid {
         padding: 10px;
@@ -44,6 +49,11 @@ body {
 
     .table-responsive {
         font-size: 0.9rem;
+    }
+
+    /* Em mobile, cards e gráfico ficam empilhados */
+    #financeChart {
+        max-height: 250px;
     }
 }
 
