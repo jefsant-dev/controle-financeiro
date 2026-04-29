@@ -15,11 +15,13 @@ try {
     $recurring = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     $generated = 0;
-    $today = new DateTime();
     
     foreach ($recurring as $t) {
+        $anchor_date = !empty($t['due_date']) ? $t['due_date'] : $t['created_at'];
+        $anchor = new DateTime($anchor_date);
+
         for ($i = 1; $i <= $months; $i++) {
-            $next_date = clone $today;
+            $next_date = clone $anchor;
             if ($t['recurrence_type'] === 'monthly') {
                 $next_date->modify("+{$i} month");
             } else {
