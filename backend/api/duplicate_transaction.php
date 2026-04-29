@@ -24,15 +24,15 @@ try {
     $insert = $pdo->prepare(
         "INSERT INTO transactions (type, description, amount, category_id, source_id, "
         . "expense_type_id, due_date, created_at, is_recurring, recurrence_type, "
-        . "recurrence_end_date, is_fixed_amount, penalty_formula, is_paid) "
-        . "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        . "recurrence_end_date, is_fixed_amount, penalty_formula, notes, tags, is_paid) "
+        . "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     );
     $insert->execute([
         $trans['type'], $trans['description'], $trans['amount'], $trans['category_id'],
         $trans['source_id'], $trans['expense_type_id'], $trans['due_date'],
         date('Y-m-d H:i:s'), $trans['is_recurring'], $trans['recurrence_type'],
         $trans['recurrence_end_date'], $trans['is_fixed_amount'], 
-        $trans['penalty_formula'], 0
+        $trans['penalty_formula'], $trans['notes'], $trans['tags'], 0
     ]);
     
     $new_id = $pdo->lastInsertId();

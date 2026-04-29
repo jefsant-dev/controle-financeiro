@@ -52,16 +52,18 @@ try {
     $recurrence_end_date = $data['recurrence_end_date'] ?? null;
     $is_fixed_amount = $data['is_fixed_amount'] ?? true;
     $penalty_formula = $data['penalty_formula'] ?? null;
+    $notes = trim($data['notes'] ?? '');
+    $tags = trim($data['tags'] ?? '');
 
     $stmt = $pdo->prepare(
         "UPDATE transactions SET type = ?, description = ?, amount = ?, category_id = ?, source_id = ?, "
         . "expense_type_id = ?, created_at = ?, due_date = ?, is_recurring = ?, recurrence_type = ?, "
-        . "recurrence_end_date = ?, is_fixed_amount = ?, penalty_formula = ? WHERE id = ?"
+        . "recurrence_end_date = ?, is_fixed_amount = ?, penalty_formula = ?, notes = ?, tags = ? WHERE id = ?"
     );
     $stmt->execute([
         $type, $description, $amount, $category_id, $source_id, $expense_type_id, 
         $date . ' 00:00:00', $due_date, $is_recurring ? 1 : 0, $recurrence_type,
-        $recurrence_end_date, $is_fixed_amount ? 1 : 0, $penalty_formula, $id
+        $recurrence_end_date, $is_fixed_amount ? 1 : 0, $penalty_formula, $notes, $tags, $id
     ]);
 
     echo json_encode(['success' => true]);

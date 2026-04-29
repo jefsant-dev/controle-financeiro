@@ -29,10 +29,21 @@ try {
             // Verificar se já existe transação para esse período
             $check = $pdo->prepare(
                 "SELECT id FROM transactions WHERE "
-                . "category_id = ? AND type = ? AND MONTH(created_at) = ? AND YEAR(created_at) = ? "
+                . "category_id = ? AND type = ? AND description = ? "
+                . "AND COALESCE(source_id, 0) = COALESCE(?, 0) "
+                . "AND COALESCE(expense_type_id, 0) = COALESCE(?, 0) "
+                . "AND MONTH(created_at) = ? AND YEAR(created_at) = ? "
                 . "AND is_recurring = 1 LIMIT 1"
             );
-            $check->execute([$t['category_id'], $t['type'], $next_date->format('m'), $next_date->format('Y')]);
+            $check->execute([
+                $t['category_id'],
+                $t['type'],
+                $t['description'],
+                $t['source_id'],
+                $t['expense_type_id'],
+                $next_date->format('m'),
+                $next_date->format('Y')
+            ]);
             
             if (!$check->fetch()) {
                 // Criar nova transação recorrente
@@ -40,15 +51,15 @@ try {
                 $insert = $pdo->prepare(
                     "INSERT INTO transactions (type, description, amount, category_id, source_id, "
                     . "expense_type_id, due_date, created_at, is_recurring, recurrence_type, "
-                    . "recurrence_end_date, is_fixed_amount, penalty_formula, is_paid) "
-                    . "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    . "recurrence_end_date, is_fixed_amount, penalty_formula, notes, tags, is_paid) "
+                    . "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
                 $insert->execute([
                     $t['type'], $t['description'], $new_amount, $t['category_id'], 
                     $t['source_id'], $t['expense_type_id'], $next_date->format('Y-m-d'),
                     $next_date->format('Y-m-d 00:00:00'), 1, $t['recurrence_type'],
                     $t['recurrence_end_date'], $t['is_fixed_amount'], 
-                    $t['penalty_formula'], 0
+                    $t['penalty_formula'], $t['notes'], $t['tags'], 0
                 ]);
                 $generated++;
             }

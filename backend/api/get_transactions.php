@@ -6,7 +6,7 @@ try {
     $stmt = $pdo->query(
         "SELECT t.id, t.type, t.description, t.amount, t.created_at, t.category_id, t.source_id, t.expense_type_id, "
         . "t.is_paid, t.due_date, t.is_recurring, t.recurrence_type, t.recurrence_end_date, t.is_fixed_amount, "
-        . "t.penalty_formula, t.calculated_amount, "
+        . "t.penalty_formula, t.calculated_amount, t.notes, t.tags, "
         . "c.name AS category, s.name AS source, et.name AS expense_type "
         . "FROM transactions t "
         . "LEFT JOIN categories c ON t.category_id = c.id "

@@ -47,10 +47,19 @@ function openAddModal(type) {
     document.getElementById('amount').value = '';
     document.getElementById('source').value = '';
     document.getElementById('expense-type').value = '';
+    document.getElementById('due-date').value = '';
+    document.getElementById('is-recurring').checked = false;
+    document.getElementById('recurrence-type').value = 'monthly';
+    document.getElementById('recurrence-end-date').value = '';
+    document.getElementById('is-fixed-amount').checked = true;
+    document.getElementById('penalty-formula').value = '';
+    document.getElementById('notes').value = '';
+    document.getElementById('tags').value = '';
     setDefaultDate();
     document.getElementById('modal-title').textContent = `Adicionar ${type === 'receita' ? 'Receita' : 'Despesa'}`;
     populateCategorySelect(type);
     toggleTransactionFields(type);
+    document.getElementById('recurrence-fields').classList.add('d-none');
     new bootstrap.Modal(document.getElementById('transactionModal')).show();
 }
 
@@ -336,53 +345,59 @@ function createTableRow(transaction) {
     if (transaction.type === 'receita') {
         row.innerHTML = `
             <td>${date}</td>
-            <td>
-                ${transaction.description}
-                <br>
-                <small>${paidBadge} ${recurringBadge}</small>
-            </td>
+            <td>${transaction.description}</td>
+            <td>${transaction.notes || '-'}</td>
+            <td>${transaction.tags || '-'}</td>
             <td>${transaction.category}</td>
             <td>${transaction.source || '-'}</td>
             <td>R$ ${parseFloat(displayAmount).toFixed(2)}</td>
             <td>
-                <button class="btn btn-sm btn-info btn-action" title="Marcar como ${transaction.is_paid ? 'não ' : ''}pago" onclick="togglePaymentStatus(${transaction.id}, ${transaction.is_paid ? 1 : 0})">
-                    <i class="fas fa-check"></i>
-                </button>
-                <button class="btn btn-sm btn-primary btn-action" title="Duplicar" onclick="duplicateTransaction(${transaction.id})">
-                    <i class="fas fa-copy"></i>
-                </button>
-                <button class="btn btn-sm btn-warning btn-action" onclick="editTransaction(${transaction.id})">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-danger btn-action" onclick="deleteTransaction(${transaction.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <div class="d-flex flex-column gap-1">
+                    <span>${paidBadge} ${recurringBadge}</span>
+                    <div>
+                        <button class="btn btn-sm btn-info btn-action" title="Marcar como ${transaction.is_paid ? 'não ' : ''}pago" onclick="togglePaymentStatus(${transaction.id}, ${transaction.is_paid ? 1 : 0})">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary btn-action" title="Duplicar" onclick="duplicateTransaction(${transaction.id})">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning btn-action" onclick="editTransaction(${transaction.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteTransaction(${transaction.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
             </td>
         `;
     } else {
         row.innerHTML = `
             <td>${date}</td>
-            <td>
-                ${transaction.description}
-                <br>
-                <small>${paidBadge} ${recurringBadge}</small>
-            </td>
+            <td>${transaction.description}</td>
+            <td>${transaction.notes || '-'}</td>
+            <td>${transaction.tags || '-'}</td>
             <td>${transaction.category}</td>
             <td>${transaction.expense_type || '-'}</td>
             <td>R$ ${parseFloat(displayAmount).toFixed(2)}</td>
             <td>
-                <button class="btn btn-sm btn-info btn-action" title="Marcar como ${transaction.is_paid ? 'não ' : ''}pago" onclick="togglePaymentStatus(${transaction.id}, ${transaction.is_paid ? 1 : 0})">
-                    <i class="fas fa-check"></i>
-                </button>
-                <button class="btn btn-sm btn-primary btn-action" title="Duplicar" onclick="duplicateTransaction(${transaction.id})">
-                    <i class="fas fa-copy"></i>
-                </button>
-                <button class="btn btn-sm btn-warning btn-action" onclick="editTransaction(${transaction.id})">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-danger btn-action" onclick="deleteTransaction(${transaction.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <div class="d-flex flex-column gap-1">
+                    <span>${paidBadge} ${recurringBadge}</span>
+                    <div>
+                        <button class="btn btn-sm btn-info btn-action" title="Marcar como ${transaction.is_paid ? 'não ' : ''}pago" onclick="togglePaymentStatus(${transaction.id}, ${transaction.is_paid ? 1 : 0})">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary btn-action" title="Duplicar" onclick="duplicateTransaction(${transaction.id})">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning btn-action" onclick="editTransaction(${transaction.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteTransaction(${transaction.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
             </td>
         `;
     }
@@ -441,7 +456,7 @@ function applyFilters() {
     const dateTo = document.getElementById('date-to').value;
 
     filteredTransactions = transactions.filter(transaction => {
-        const matchesQuery = query === '' || transaction.description.toLowerCase().includes(query) || transaction.category.toLowerCase().includes(query) || (transaction.source || '').toLowerCase().includes(query) || (transaction.expense_type || '').toLowerCase().includes(query);
+        const matchesQuery = query === '' || transaction.description.toLowerCase().includes(query) || transaction.category.toLowerCase().includes(query) || (transaction.source || '').toLowerCase().includes(query) || (transaction.expense_type || '').toLowerCase().includes(query) || (transaction.tags || '').toLowerCase().includes(query) || (transaction.notes || '').toLowerCase().includes(query);
         const matchesCategory = !category || String(transaction.category_id) === category;
 
         const transactionDate = transaction.created_at.split(' ')[0];
@@ -500,8 +515,4 @@ function showRelatorios() {
 
 function showGraficos() {
     alert('Funcionalidade de Gráficos em desenvolvimento');
-}
-
-function showConfiguracoes() {
-    alert('Funcionalidade de Configurações em desenvolvimento');
 }

@@ -36,6 +36,8 @@ async function saveTransactionExtended() {
     const recurrence_end_date = document.getElementById('recurrence-end-date').value || null;
     const is_fixed_amount = document.getElementById('is-fixed-amount').checked;
     const penalty_formula = document.getElementById('penalty-formula').value || null;
+    const notes = document.getElementById('notes').value.trim();
+    const tags = document.getElementById('tags').value.trim();
 
     if (!description || !amount || !category_id || !date) {
         alert('Preencha todos os campos obrigatórios!');
@@ -54,7 +56,8 @@ async function saveTransactionExtended() {
 
     const data = {
         type, description, amount, category_id, source_id, expense_type_id, date,
-        due_date, is_recurring, recurrence_type, recurrence_end_date, is_fixed_amount, penalty_formula
+        due_date, is_recurring, recurrence_type, recurrence_end_date, is_fixed_amount, penalty_formula,
+        notes, tags
     };
 
     try {
@@ -105,6 +108,8 @@ function editTransactionExtended(id) {
         document.getElementById('recurrence-end-date').value = transaction.recurrence_end_date || '';
         document.getElementById('is-fixed-amount').checked = !!transaction.is_fixed_amount;
         document.getElementById('penalty-formula').value = transaction.penalty_formula || '';
+        document.getElementById('notes').value = transaction.notes || '';
+        document.getElementById('tags').value = transaction.tags || '';
         
         // Mostrar campos de recorrência se ativado
         const recurrenceFields = document.getElementById('recurrence-fields');
